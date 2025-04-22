@@ -100,3 +100,114 @@ A comprehensive demonstration of backend REST API implementation using Spring Bo
 - Response times
 - Error rates
 - Custom health indicators 
+
+## Monitoring Guide
+
+### 1. Built-in Actuator Endpoints
+Access these endpoints directly in your browser or using tools like curl:
+
+- Health Check: `http://localhost:8080/actuator/health`
+- Metrics List: `http://localhost:8080/actuator/metrics`
+- Specific Metric: `http://localhost:8080/actuator/metrics/{metric.name}`
+- Prometheus Format: `http://localhost:8080/actuator/prometheus`
+
+### 2. Setting up Prometheus
+1. Download Prometheus from https://prometheus.io/download/
+2. Create `prometheus.yml`:
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-actuator'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['localhost:8080']
+```
+3. Start Prometheus:
+```bash
+./prometheus --config.file=prometheus.yml
+```
+4. Access Prometheus UI: `http://localhost:9090`
+
+### 3. Setting up Grafana
+1. Download Grafana from https://grafana.com/grafana/download
+2. Start Grafana
+3. Access Grafana UI: `http://localhost:3000` (default credentials: admin/admin)
+4. Add Prometheus as a data source:
+   - URL: `http://localhost:9090`
+   - Access: Browser
+5. Import dashboard templates:
+   - JVM (Micrometer) ID: 4701
+   - Spring Boot 2.1 Statistics ID: 10280
+
+### 4. Available Metrics
+
+#### System Metrics
+- JVM Memory Usage
+- System CPU Usage
+- Thread States
+- Garbage Collection
+
+#### Application Metrics
+- HTTP Request Counts
+- Response Times
+- Error Rates
+- API Endpoint Usage
+
+#### Custom Business Metrics
+- Total API Requests: `api.requests.total`
+- User Operations: `user.operations`
+- File Operations: `file.operations`
+
+### 5. Logging
+
+JSON formatted logs are available in the console and can be collected using tools like:
+- ELK Stack (Elasticsearch, Logstash, Kibana)
+- Graylog
+- Splunk
+
+### 6. Sample Monitoring Commands
+
+Check application health:
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+View all available metrics:
+```bash
+curl http://localhost:8080/actuator/metrics
+```
+
+Check specific metric (e.g., http requests):
+```bash
+curl http://localhost:8080/actuator/metrics/http.server.requests
+```
+
+View Prometheus format metrics:
+```bash
+curl http://localhost:8080/actuator/prometheus
+```
+
+### 7. Recommended Monitoring Stack
+
+For production environments, we recommend:
+1. **Metrics Collection & Storage**
+   - Prometheus for metrics collection
+   - Grafana for visualization
+   - Alert Manager for alerting
+
+2. **Log Management**
+   - ELK Stack or Graylog for log aggregation
+   - Filebeat for log shipping
+
+3. **APM (Application Performance Monitoring)**
+   - Spring Boot Admin Server
+   - Or commercial solutions like Datadog, New Relic
+
+### 8. Alert Setup
+Configure alerts in Grafana for:
+- High error rates (> 1%)
+- Long response times (> 500ms)
+- High CPU usage (> 80%)
+- Low memory availability (< 20%) 
