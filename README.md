@@ -2,6 +2,29 @@
 
 A comprehensive demonstration of backend REST API implementation using Spring Boot, showcasing common API patterns and features.
 
+## Project Status
+✅ Completed:
+- Project structure and dependencies
+- User entity and DTO
+- Application properties
+- Basic configuration
+- User management implementation
+- Security setup with JWT
+- Exception handling
+- File operations
+- Data processing (CSV/Excel import/export)
+- Monitoring setup
+  - Health checks
+  - Metrics collection
+  - Request logging
+  - Prometheus integration
+
+🚧 In progress:
+- Search & filtering
+
+⏳ Pending:
+- Monitoring setup
+
 ## API Endpoints
 
 ### 1. User Management
@@ -61,3 +84,19 @@ A comprehensive demonstration of backend REST API implementation using Spring Bo
    - Request tracing
 
 ## Project Structure 
+
+## Monitoring Endpoints
+
+### 1. Health Check
+- `GET /actuator/health` - System health status
+
+### 2. Metrics
+- `GET /actuator/metrics` - Available metrics
+- `GET /actuator/prometheus` - Prometheus metrics
+- `GET /actuator/info` - Application information
+
+### 3. Custom Metrics
+- API request counts
+- Response times
+- Error rates
+- Custom health indicators 
