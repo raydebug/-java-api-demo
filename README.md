@@ -1,7 +1,5 @@
 # Java API Demo Project
 
-A robust Spring Boot-based REST API demonstrating various enterprise-level features and best practices.
-
 ## Features
 
 ### Authentication & Security
@@ -48,215 +46,237 @@ A robust Spring Boot-based REST API demonstrating various enterprise-level featu
 - OpenCSV (CSV processing)
 - Lombok
 - Jakarta Validation
+- REST Assured (Testing)
+- TestContainers (Testing)
+- JUnit 5 (Testing)
 
 ## Project Structure
 
 ## Project Status
+
 ✅ Completed:
 - Project structure and dependencies
-- User entity and DTO
-- Application properties
-- Basic configuration
-- User management implementation
-- Security setup with JWT
+- User management (CRUD operations)
+- Authentication and authorization
+- File operations (upload/download)
+- Data processing (CSV/Excel)
+- Basic monitoring setup
+- API testing framework
+- Database integration
+- Security implementation
 - Exception handling
-- File operations
-- Data processing (CSV/Excel import/export)
-- Monitoring setup
-  - Health checks
-  - Metrics collection
-  - Request logging
-  - Prometheus integration
 
-🚧 In progress:
-- Search & filtering
+🚧 In Progress:
+- Search and filtering functionality
+- Advanced monitoring features
+- Performance optimization
+- Documentation improvements
 
-⏳ Pending:
-- Monitoring setup
+⏳ Planned:
+- Batch processing enhancements
+- Email notification system
+- Report generation
+- API versioning
+- Cache implementation
 
 ## API Endpoints
 
-### 1. User Management
-- `POST /api/v1/users` - Create user
-- `GET /api/v1/users` - List users (with pagination)
-- `GET /api/v1/users/{id}` - Get user details
-- `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user
-- `POST /api/v1/users/batch` - Batch user creation
+### Authentication
+- POST `/api/v1/auth/login` - User login
+- POST `/api/v1/auth/refresh` - Refresh token
 
-### 2. Authentication & Authorization
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/refresh` - Refresh token
-- `POST /api/v1/auth/logout` - Logout
-- `POST /api/v1/auth/reset-password` - Password reset
+### User Management
+- POST `/api/v1/users` - Create user
+- GET `/api/v1/users` - List users (with pagination)
+- GET `/api/v1/users/{id}` - Get user details
+- PUT `/api/v1/users/{id}` - Update user
+- DELETE `/api/v1/users/{id}` - Delete user
 
-### 3. File Operations
-- `POST /api/v1/files/upload` - Single file upload
-- `POST /api/v1/files/bulk-upload` - Multiple files upload
-- `GET /api/v1/files/{id}` - Download file
-- `DELETE /api/v1/files/{id}` - Delete file
+### File Operations
+- POST `/api/v1/files/upload` - Single file upload
+- POST `/api/v1/files/bulk-upload` - Multiple files upload
+- GET `/api/v1/files/{id}` - Download file
+- DELETE `/api/v1/files/{id}` - Delete file
 
-### 4. Data Processing
-- `POST /api/v1/data/import` - Import data (CSV/Excel)
-- `GET /api/v1/data/export` - Export data
-- `POST /api/v1/data/validate` - Validate data
+### Data Processing
+- POST `/api/v1/data/import` - Import data (CSV/Excel)
+- GET `/api/v1/data/export` - Export data
+- POST `/api/v1/data/validate` - Validate data
 
-### 5. Search & Filtering
-- `GET /api/v1/search` - Global search
-- `GET /api/v1/filter` - Advanced filtering
-- `GET /api/v1/suggest` - Auto-suggestions
+## Testing
 
-## Technical Features
+### Overview
+The project uses a comprehensive testing strategy with:
+- REST Assured for API testing
+- TestContainers for database testing
+- JUnit 5 for test lifecycle management
+- Spring Boot Test for integration testing
 
-1. **Security**
-   - JWT Authentication
-   - Role-based authorization
-   - API key authentication
-   - Rate limiting
+### Running Tests
 
-2. **Data Handling**
-   - Request validation
-   - Error handling
-   - Response pagination
-   - Data filtering
-   - Sorting
+```bash
+# Run all tests
+mvn test
 
-3. **Performance**
-   - Caching (Redis)
-   - Async processing
-   - Batch operations
+# Run API tests only
+mvn test -Dtest="**/*ApiTest.java" -Dspring.profiles.active=test
 
-4. **Monitoring**
-   - API metrics
-   - Health checks
-   - Audit logging
-   - Request tracing
+# Run specific test class
+mvn test -Dtest="AuthApiTest" -Dspring.profiles.active=test
+```
 
-## Project Structure 
+### Test Categories
 
-## Monitoring Endpoints
+#### 1. Authentication Tests
+- Login success/failure
+- Token validation
+- Authorization checks
 
-### 1. Health Check
-- `GET /actuator/health` - System health status
+#### 2. User Management Tests
+- User creation
+- User retrieval
+- User updates
+- User deletion
+- List users with pagination
 
-### 2. Metrics
-- `GET /actuator/metrics` - Available metrics
-- `GET /actuator/prometheus` - Prometheus metrics
-- `GET /actuator/info` - Application information
+#### 3. File Operation Tests
+- File upload
+- File download
+- Multiple file handling
+- File deletion
 
-### 3. Custom Metrics
+#### 4. Data Processing Tests
+- Excel import/export
+- CSV import/export
+- Data validation
+- Error handling
+
+### Test Configuration
+
+#### Database
+- Uses TestContainers PostgreSQL
+- Automatic schema creation
+- Test data initialization
+- Isolated test environment
+- Automatic cleanup
+
+#### Security
+- Test JWT configuration
+- Mock authentication
+- Role-based access testing
+- Security context setup
+
+#### Test Data
+- Predefined test users
+- Admin user: admin@example.com
+- Regular user: user@example.com
+- Test password: password (BCrypt encoded)
+
+### Best Practices
+
+1. **Test Independence**
+   - Each test should be independent
+   - Clean state before each test
+   - No test order dependencies
+
+2. **Naming Convention**
+   - Test class: `*ApiTest.java`
+   - Test methods: `shouldDoSomething()`
+   - Clear and descriptive names
+
+3. **Assertions**
+   - Use REST Assured matchers
+   - Check response status
+   - Validate response body
+   - Verify error messages
+
+4. **Error Testing**
+   - Test failure scenarios
+   - Validate error responses
+   - Check error messages
+   - Test boundary conditions
+
+## Monitoring
+
+### Health Check Endpoints
+- GET `/actuator/health` - System health status
+- GET `/actuator/metrics` - Available metrics
+- GET `/actuator/prometheus` - Prometheus metrics
+- GET `/actuator/info` - Application information
+
+### Metrics Collection
 - API request counts
 - Response times
 - Error rates
-- Custom health indicators 
+- JVM metrics
+- Custom business metrics
 
-## Monitoring Guide
-
-### 1. Built-in Actuator Endpoints
-Access these endpoints directly in your browser or using tools like curl:
-
-- Health Check: `http://localhost:8080/actuator/health`
-- Metrics List: `http://localhost:8080/actuator/metrics`
-- Specific Metric: `http://localhost:8080/actuator/metrics/{metric.name}`
-- Prometheus Format: `http://localhost:8080/actuator/prometheus`
-
-### 2. Setting up Prometheus
-1. Download Prometheus from https://prometheus.io/download/
-2. Create `prometheus.yml`:
-```yaml
-global:
-  scrape_interval: 15s
-
-scrape_configs:
-  - job_name: 'spring-actuator'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['localhost:8080']
-```
-3. Start Prometheus:
-```bash
-./prometheus --config.file=prometheus.yml
-```
-4. Access Prometheus UI: `http://localhost:9090`
-
-### 3. Setting up Grafana
-1. Download Grafana from https://grafana.com/grafana/download
-2. Start Grafana
-3. Access Grafana UI: `http://localhost:3000` (default credentials: admin/admin)
-4. Add Prometheus as a data source:
-   - URL: `http://localhost:9090`
-   - Access: Browser
-5. Import dashboard templates:
-   - JVM (Micrometer) ID: 4701
-   - Spring Boot 2.1 Statistics ID: 10280
-
-### 4. Available Metrics
-
-#### System Metrics
-- JVM Memory Usage
-- System CPU Usage
-- Thread States
-- Garbage Collection
-
-#### Application Metrics
-- HTTP Request Counts
-- Response Times
-- Error Rates
-- API Endpoint Usage
-
-#### Custom Business Metrics
-- Total API Requests: `api.requests.total`
-- User Operations: `user.operations`
-- File Operations: `file.operations`
-
-### 5. Logging
-
-JSON formatted logs are available in the console and can be collected using tools like:
-- ELK Stack (Elasticsearch, Logstash, Kibana)
-- Graylog
-- Splunk
-
-### 6. Sample Monitoring Commands
-
-Check application health:
-```bash
-curl http://localhost:8080/actuator/health
-```
-
-View all available metrics:
-```bash
-curl http://localhost:8080/actuator/metrics
-```
-
-Check specific metric (e.g., http requests):
-```bash
-curl http://localhost:8080/actuator/metrics/http.server.requests
-```
-
-View Prometheus format metrics:
-```bash
-curl http://localhost:8080/actuator/prometheus
-```
-
-### 7. Recommended Monitoring Stack
-
-For production environments, we recommend:
-1. **Metrics Collection & Storage**
-   - Prometheus for metrics collection
-   - Grafana for visualization
-   - Alert Manager for alerting
-
-2. **Log Management**
-   - ELK Stack or Graylog for log aggregation
-   - Filebeat for log shipping
-
-3. **APM (Application Performance Monitoring)**
-   - Spring Boot Admin Server
-   - Or commercial solutions like Datadog, New Relic
-
-### 8. Alert Setup
+### Alert Configuration
 Configure alerts in Grafana for:
 - High error rates (> 1%)
 - Long response times (> 500ms)
 - High CPU usage (> 80%)
-- Low memory availability (< 20%) 
+- Low memory availability (< 20%)
+
+## Getting Started
+
+1. Prerequisites:
+   - Java 17
+   - Maven
+   - PostgreSQL
+   - Docker (for tests)
+
+2. Configuration:
+   ```properties
+   # application.properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/demo_db
+   spring.datasource.username=your_username
+   spring.datasource.password=your_password
+   
+   # JWT Configuration
+   jwt.secret=your_jwt_secret
+   jwt.expiration=86400000
+   ```
+
+3. Build and Run:
+   ```bash
+   mvn clean install
+   mvn spring-boot:run
+   ```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- Follow Google Java Style Guide
+- Use meaningful variable and method names
+- Write comprehensive documentation
+- Include unit tests for new features
+
+### Commit Messages
+- Use clear and meaningful commit messages
+- Follow conventional commits specification
+- Reference issues and pull requests
+
+### Pull Request Process
+1. Update the README.md with details of changes
+2. Update the CHANGELOG.md with version details
+3. Ensure all tests pass
+4. Get approval from two other developers
+5. Merge only after CI/CD pipeline succeeds
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Spring Boot team for the excellent framework
+- TestContainers team for the testing infrastructure
+- The open-source community for various libraries used
+- Contributors who have helped improve this project 
