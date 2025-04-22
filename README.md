@@ -1,6 +1,55 @@
-# Java Backend API Demo Project
+# Java API Demo Project
 
-A comprehensive demonstration of backend REST API implementation using Spring Boot, showcasing common API patterns and features.
+A robust Spring Boot-based REST API demonstrating various enterprise-level features and best practices.
+
+## Features
+
+### Authentication & Security
+- JWT-based authentication
+- Role-based access control
+- Secure password handling with BCrypt
+- Stateless session management
+- Protected API endpoints
+
+### User Management
+- User registration and login
+- Profile management
+- Role-based authorization
+- Email validation
+
+### File Operations
+- File upload and download
+- Multi-file handling
+- Secure file storage
+- File metadata tracking
+
+### Data Processing
+- Excel file import/export
+- CSV file import/export
+- Batch processing support
+- Data validation
+- Error handling and reporting
+
+### Monitoring & Logging
+- Request/Response logging
+- Performance monitoring
+- Error tracking
+- Audit logging
+
+## Technical Stack
+
+- Java 17
+- Spring Boot 3.x
+- Spring Security
+- Spring Data JPA
+- PostgreSQL
+- JWT Authentication
+- Apache POI (Excel processing)
+- OpenCSV (CSV processing)
+- Lombok
+- Jakarta Validation
+
+## Project Structure
 
 ## Project Status
 ✅ Completed:
