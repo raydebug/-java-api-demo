@@ -15,6 +15,6 @@ public class ContextLoadTest {
 
     @Test
     void contextLoads() {
-        // Should pass if Spring context is OK
+        // Context load test
     }
 }

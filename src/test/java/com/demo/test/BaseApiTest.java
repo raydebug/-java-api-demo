@@ -70,7 +70,15 @@ public abstract class BaseApiTest {
     }
 
     protected String getAuthToken() {
-        return authToken;
+        return given()
+            .contentType("application/json")
+            .body("{\"username\":\"test\",\"password\":\"test\"}")
+        .when()
+            .post("/api/auth/login")
+        .then()
+            .statusCode(200)
+            .extract()
+            .path("data.token");
     }
 
     private String obtainAuthToken() {
