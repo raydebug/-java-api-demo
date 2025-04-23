@@ -14,7 +14,7 @@ public class UserApiTest extends BaseApiTest {
     @BeforeEach
     void setup() {
         super.setUp();
-        authToken = getAuthToken("admin@example.com", "adminpass");
+        authToken = getAuthToken();
     }
 
     @Test
