@@ -18,6 +18,7 @@ A Spring Boot REST API with JWT authentication, file operations, and data proces
 - Role-based authorization
 - Email-based authentication
 - Custom user details service
+- Proper HTTP status codes (201 for creation)
 
 ### File Operations
 - File upload and download
@@ -46,7 +47,8 @@ A Spring Boot REST API with JWT authentication, file operations, and data proces
 - Spring Boot 3.2.3
 - Spring Security
 - Spring Data JPA
-- PostgreSQL
+- H2 Database (for testing)
+- PostgreSQL (for production)
 - JWT Authentication
 - Apache POI (Excel processing)
 - OpenCSV (CSV processing)
@@ -92,6 +94,8 @@ src/
 - Database integration
 - Security implementation
 - Exception handling
+- Proper HTTP status codes
+- Test user creation and verification
 
 🚧 In Progress:
 - Search and filtering functionality
@@ -109,15 +113,15 @@ src/
 ## API Endpoints
 
 ### Authentication
-- POST `/api/v1/auth/login` - User login
+- POST `/api/v1/auth/login` - User login (200 OK)
 - POST `/api/v1/auth/refresh` - Refresh token
 
 ### User Management
-- POST `/api/v1/users` - Create user
-- GET `/api/v1/users` - List users (with pagination)
-- GET `/api/v1/users/{id}` - Get user details
-- PUT `/api/v1/users/{id}` - Update user
-- DELETE `/api/v1/users/{id}` - Delete user
+- POST `/api/v1/users` - Create user (201 Created)
+- GET `/api/v1/users` - List users (200 OK, with pagination)
+- GET `/api/v1/users/{id}` - Get user details (200 OK)
+- PUT `/api/v1/users/{id}` - Update user (200 OK)
+- DELETE `/api/v1/users/{id}` - Delete user (200 OK)
 
 ### File Operations
 - POST `/api/v1/files/upload` - Single file upload
@@ -138,12 +142,14 @@ The application includes comprehensive integration tests that verify API functio
 - REST Assured for API testing
 - JUnit 5 for test lifecycle management
 - Spring Boot Test for integration testing
+- H2 database for test environment
 
 Test configuration:
 - Random port allocation
 - Database cleanup before each test
 - Test user creation and verification
 - Proper authentication handling
+- Response validation
 
 To run the tests:
 ```bash
@@ -155,7 +161,8 @@ mvn test
 1. Prerequisites:
    - Java 17
    - Maven
-   - PostgreSQL
+   - PostgreSQL (for production)
+   - H2 Database (for testing)
    - Docker (for tests)
 
 2. Configuration:
@@ -195,8 +202,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - The open-source community for various libraries used
 - Contributors who have helped improve this project
 
-## Test Changes
+## Recent Changes
 
-- Updated `UserDto` to include password field
-- Fixed test assertions to match API response structure
-- Added password validation in user creation test 
+- Updated `UserController` to return proper HTTP status codes (201 for creation)
+- Enhanced test assertions to match API response structure
+- Added password validation in user creation test
+- Improved test configuration for H2 database
+- Updated security configuration for test environment 
