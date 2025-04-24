@@ -4,6 +4,7 @@ import com.demo.dto.ApiResponse;
 import com.demo.dto.LoginRequest;
 import com.demo.dto.TokenResponse;
 import com.demo.security.JwtTokenProvider;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,27 +21,38 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider) {
+    public AuthController(
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider tokenProvider
+    ) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        System.out.println("[DEBUG] Authenticating with email: " + loginRequest.getEmail());
+
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(),
-                loginRequest.getPassword()
-            )
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(), // must match loadUserByUsername()
+                        loginRequest.getPassword()
+                )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        
+
         return ResponseEntity.ok(ApiResponse.success(new TokenResponse(jwt)));
     }
-} 
+
+    @PostConstruct
+    public void logInjectedAuthManager() {
+        System.out.println("[DEBUG] AuthController using AuthenticationManager: " + authenticationManager.getClass());
+    }
+}

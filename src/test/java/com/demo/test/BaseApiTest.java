@@ -1,10 +1,10 @@
 package com.demo.test;
 
 import static io.restassured.RestAssured.given;
-import com.demo.repository.UserRepository;
+import com.demo.dto.ApiResponse;
+import com.demo.dto.TokenResponse;
 import com.demo.security.JwtTokenProvider;
 import com.demo.test.config.TestConfig;
-import com.demo.test.dto.LoginRequest;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -16,6 +16,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import io.restassured.http.ContentType;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -29,18 +30,13 @@ public abstract class BaseApiTest {
     private int port;
 
     @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
     protected PasswordEncoder passwordEncoder;
 
     @Autowired
     protected JwtTokenProvider jwtTokenProvider;
 
     protected RequestSpecification requestSpec;
-
-    protected static final String TEST_USER_EMAIL = "admin@example.com";
-    protected static final String TEST_USER_PASSWORD = "password";
+    
     private String authToken;
 
     @BeforeEach
@@ -54,8 +50,6 @@ public abstract class BaseApiTest {
             .setContentType("application/json")
             .log(LogDetail.ALL)
             .build();
-        
-        initializeAuthToken();
     }
 
     private void initializeAuthToken() {
@@ -70,25 +64,30 @@ public abstract class BaseApiTest {
     }
 
     protected String getAuthToken() {
-        return given()
-            .contentType("application/json")
-            .body("{\"username\":\"test\",\"password\":\"test\"}")
+        String token = given()
+            .contentType(ContentType.JSON)
+            .body("{\"email\":\"test@example.com\",\"password\":\"test\"}")
         .when()
-            .post("/api/auth/login")
+            .post("/api/v1/auth/login")
         .then()
             .statusCode(200)
             .extract()
             .path("data.token");
+        
+        return token;
     }
 
-    private String obtainAuthToken() {
-        return given(requestSpec)
-            .body(new LoginRequest(TEST_USER_EMAIL, TEST_USER_PASSWORD))
-            .when()
+    protected String obtainAuthToken() {
+        String token = given()
+            .contentType(ContentType.JSON)
+            .body("{\"email\":\"test@example.com\",\"password\":\"test\"}")
+        .when()
             .post("/api/v1/auth/login")
-            .then()
+        .then()
             .statusCode(200)
             .extract()
             .path("data.token");
+            
+        return token;
     }
 } 

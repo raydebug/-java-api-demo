@@ -30,4 +30,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error(errorMessage));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnhandledExceptions(Exception ex) {
+        ex.printStackTrace(); // 👈 Print full stack trace
+        return ResponseEntity.status(500)
+                .body(ApiResponse.error("Unhandled exception: " + ex.getClass().getSimpleName() + " - " + ex.getMessage()));
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthErrors(org.springframework.security.core.AuthenticationException ex) {
+        ex.printStackTrace(); // 🔍 Show authentication failures
+        return ResponseEntity.status(401)
+                .body(ApiResponse.error("Authentication failed: " + ex.getMessage()));
+    }
+
 } 

@@ -105,25 +105,23 @@
 
 ## Testing
 
+The application includes integration tests that verify the API functionality. Tests are configured to:
+- Run on a random port to avoid conflicts
+- Clean the database before each test
+- Create and verify test users before authentication
+- Use proper authentication for API calls
+
+To run the tests:
+```bash
+mvn test
+```
+
 ### Overview
 The project uses a comprehensive testing strategy with:
 - REST Assured for API testing
 - TestContainers for database testing
 - JUnit 5 for test lifecycle management
 - Spring Boot Test for integration testing
-
-### Running Tests
-
-```bash
-# Run all tests
-mvn test
-
-# Run API tests only
-mvn test -Dtest="**/*ApiTest.java" -Dspring.profiles.active=test
-
-# Run specific test class
-mvn test -Dtest="AuthApiTest" -Dspring.profiles.active=test
-```
 
 ### Test Categories
 

@@ -1,6 +1,9 @@
 package com.demo.test;
 
+import com.demo.model.User;
+import com.demo.model.UserRole;
 import com.demo.repository.FileRepository;
+import com.demo.repository.UserRepository;
 import com.demo.test.config.TestConfig;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -28,7 +31,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
         "spring.servlet.multipart.max-file-size=10MB",
         "spring.servlet.multipart.max-request-size=10MB",
         "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.security.user.name=test",
+        "spring.security.user.name=test@example.com",
         "spring.security.user.password=test"
     }
 )
@@ -39,12 +42,19 @@ class FileApiTest extends BaseApiTest {
 
     @Autowired
     private FileRepository fileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     private File testFile;
     
     @BeforeEach
     void setupTest() {
         RestAssured.port = port;
+        
+        // Clean up database
+        fileRepository.deleteAll();
+        userRepository.deleteAll();
         
         // Create test file
         testFile = new File("src/test/resources/test.txt");
@@ -55,6 +65,20 @@ class FileApiTest extends BaseApiTest {
             } catch (IOException e) {
                 fail("Could not create test file");
             }
+        }
+
+        // Save test user
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setPassword(passwordEncoder.encode("test"));
+        user.setFirstName("Test");
+        user.setLastName("User");
+        user.setRole(UserRole.USER);
+        user = userRepository.save(user);
+        
+        // Verify user was saved
+        if (user.getId() == null) {
+            fail("Test user was not saved properly");
         }
     }
     
@@ -69,15 +93,17 @@ class FileApiTest extends BaseApiTest {
     @Test
     void uploadFileSuccess() {
         assumeTrue(testFile.exists(), "Test file must exist");
-        
+
+        String token = getAuthToken(); // ← call AFTER user is inserted
+
         given()
-            .header("Authorization", "Bearer " + getAuthToken())
-            .multiPart("file", testFile)
-        .when()
-            .post("/api/v1/files/upload")
-        .then()
-            .statusCode(200)
-            .body("data.fileName", equalTo("test.txt"))
-            .body("data.fileSize", greaterThan(0));
+                .header("Authorization", "Bearer " + token)
+                .multiPart("file", testFile)
+                .when()
+                .post("/api/v1/files/upload")
+                .then()
+                .statusCode(200)
+                .body("fileName", equalTo("test.txt"))
+                .body("fileSize", greaterThan(0));
     }
 } 
