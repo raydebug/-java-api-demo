@@ -4,6 +4,7 @@ import com.demo.dto.FileResponseDto;
 import com.demo.model.FileEntity;
 import com.demo.model.User;
 import com.demo.repository.FileRepository;
+import com.demo.security.UserPrincipal;
 import com.demo.service.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -69,7 +70,14 @@ public class FileServiceImpl implements FileService {
             fileEntity.setFileType(file.getContentType());
             fileEntity.setFilePath(targetLocation.toString());
             fileEntity.setFileSize(file.getSize());
-            fileEntity.setUploadedBy((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            
+            // Get the authenticated user from UserPrincipal
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (principal instanceof UserPrincipal) {
+                fileEntity.setUploadedBy(((UserPrincipal) principal).getUser());
+            } else {
+                throw new RuntimeException("Invalid user principal type");
+            }
 
             FileEntity savedFile = fileRepository.save(fileEntity);
             return convertToDto(savedFile);

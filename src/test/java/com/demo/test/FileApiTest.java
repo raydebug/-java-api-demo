@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -17,6 +18,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -46,6 +49,9 @@ class FileApiTest extends BaseApiTest {
     @Autowired
     private UserRepository userRepository;
     
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+    
     private File testFile;
     
     @BeforeEach
@@ -55,6 +61,14 @@ class FileApiTest extends BaseApiTest {
         // Clean up database
         fileRepository.deleteAll();
         userRepository.deleteAll();
+        
+        // Create upload directory
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+            Files.createDirectories(uploadPath);
+        } catch (IOException e) {
+            fail("Could not create upload directory: " + e.getMessage());
+        }
         
         // Create test file
         testFile = new File("src/test/resources/test.txt");
@@ -88,13 +102,30 @@ class FileApiTest extends BaseApiTest {
         if (testFile != null && testFile.exists()) {
             testFile.delete();
         }
+        // Clean up upload directory
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+            if (Files.exists(uploadPath)) {
+                Files.walk(uploadPath)
+                    .sorted((a, b) -> -a.compareTo(b))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            // Ignore cleanup errors
+                        }
+                    });
+            }
+        } catch (IOException e) {
+            // Ignore cleanup errors
+        }
     }
 
     @Test
     void uploadFileSuccess() {
         assumeTrue(testFile.exists(), "Test file must exist");
 
-        String token = getAuthToken(); // ← call AFTER user is inserted
+        String token = getAuthToken();
 
         given()
                 .header("Authorization", "Bearer " + token)
@@ -103,7 +134,7 @@ class FileApiTest extends BaseApiTest {
                 .post("/api/v1/files/upload")
                 .then()
                 .statusCode(200)
-                .body("fileName", equalTo("test.txt"))
-                .body("fileSize", greaterThan(0));
+                .body("data.fileName", equalTo("test.txt"))
+                .body("data.fileSize", greaterThan(0));
     }
 } 
