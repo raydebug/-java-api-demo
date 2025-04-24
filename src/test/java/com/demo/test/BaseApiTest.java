@@ -3,8 +3,12 @@ package com.demo.test;
 import static io.restassured.RestAssured.given;
 import com.demo.dto.ApiResponse;
 import com.demo.dto.TokenResponse;
+import com.demo.model.User;
+import com.demo.model.UserRole;
+import com.demo.repository.UserRepository;
 import com.demo.security.JwtTokenProvider;
 import com.demo.test.config.TestConfig;
+import com.demo.test.util.TestUsers;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -35,9 +39,12 @@ public abstract class BaseApiTest {
     @Autowired
     protected JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    protected UserRepository userRepository;
+
     protected RequestSpecification requestSpec;
     
-    private String authToken;
+    protected String authToken;
 
     @BeforeEach
     void setUp() {
@@ -50,44 +57,44 @@ public abstract class BaseApiTest {
             .setContentType("application/json")
             .log(LogDetail.ALL)
             .build();
-    }
 
-    private void initializeAuthToken() {
-        try {
-            if (authToken == null) {
-                authToken = obtainAuthToken();
-            }
-        } catch (Exception e) {
-            System.err.println("Auth token initialization failed: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Get auth token for the admin user from data.sql
+        authToken = getAuthToken();
     }
 
     protected String getAuthToken() {
-        String token = given()
-            .contentType(ContentType.JSON)
-            .body("{\"email\":\"test@example.com\",\"password\":\"test\"}")
-        .when()
-            .post("/api/v1/auth/login")
-        .then()
-            .statusCode(200)
-            .extract()
-            .path("data.token");
-        
-        return token;
+        try {
+            return given()
+                .contentType(ContentType.JSON)
+                .body(String.format("{\"email\":\"%s\",\"password\":\"%s\"}", 
+                    "admin@example.com", "password"))
+            .when()
+                .post("/api/v1/auth/login")
+            .then()
+                .statusCode(200)
+                .extract()
+                .path("data.token");
+        } catch (Exception e) {
+            System.err.println("Failed to get auth token: " + e.getMessage());
+            throw e;
+        }
     }
 
     protected String obtainAuthToken() {
-        String token = given()
-            .contentType(ContentType.JSON)
-            .body("{\"email\":\"test@example.com\",\"password\":\"test\"}")
-        .when()
-            .post("/api/v1/auth/login")
-        .then()
-            .statusCode(200)
-            .extract()
-            .path("data.token");
-            
-        return token;
+        try {
+            return given()
+                .contentType(ContentType.JSON)
+                .body(String.format("{\"email\":\"%s\",\"password\":\"%s\"}", 
+                    TestUsers.EMAIL, TestUsers.PASSWORD))
+            .when()
+                .post("/api/v1/auth/login")
+            .then()
+                .statusCode(200)
+                .extract()
+                .path("data.token");
+        } catch (Exception e) {
+            System.err.println("Failed to obtain auth token: " + e.getMessage());
+            throw e;
+        }
     }
 } 

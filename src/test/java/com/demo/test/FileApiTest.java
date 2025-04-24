@@ -1,11 +1,7 @@
 package com.demo.test;
 
-import com.demo.model.User;
-import com.demo.model.UserRole;
 import com.demo.repository.FileRepository;
-import com.demo.repository.UserRepository;
 import com.demo.test.config.TestConfig;
-import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,14 +36,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 )
 class FileApiTest extends BaseApiTest {
 
-    @LocalServerPort
-    private int port;
-
     @Autowired
     private FileRepository fileRepository;
-
-    @Autowired
-    private UserRepository userRepository;
     
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -56,11 +46,10 @@ class FileApiTest extends BaseApiTest {
     
     @BeforeEach
     void setupTest() {
-        RestAssured.port = port;
+        super.setUp();
         
-        // Clean up database
+        // Clean up file repository
         fileRepository.deleteAll();
-        userRepository.deleteAll();
         
         // Create upload directory
         try {
@@ -79,20 +68,6 @@ class FileApiTest extends BaseApiTest {
             } catch (IOException e) {
                 fail("Could not create test file");
             }
-        }
-
-        // Save test user
-        User user = new User();
-        user.setEmail("test@example.com");
-        user.setPassword(passwordEncoder.encode("test"));
-        user.setFirstName("Test");
-        user.setLastName("User");
-        user.setRole(UserRole.USER);
-        user = userRepository.save(user);
-        
-        // Verify user was saved
-        if (user.getId() == null) {
-            fail("Test user was not saved properly");
         }
     }
     
@@ -129,10 +104,11 @@ class FileApiTest extends BaseApiTest {
 
         given()
                 .header("Authorization", "Bearer " + token)
-                .multiPart("file", testFile)
+                .multiPart("file", testFile) // Automatically sets multipart/form-data
                 .when()
                 .post("/api/v1/files/upload")
                 .then()
+                .log().all()
                 .statusCode(200)
                 .body("data.fileName", equalTo("test.txt"))
                 .body("data.fileSize", greaterThan(0));

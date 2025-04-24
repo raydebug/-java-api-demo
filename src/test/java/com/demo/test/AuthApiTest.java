@@ -12,7 +12,7 @@ public class AuthApiTest extends BaseApiTest {
     @Test
     void loginSuccess() {
         given(requestSpec)
-            .body(new LoginRequest("user@example.com", "password"))
+            .body(new LoginRequest("admin@example.com", "password"))
         .when()
             .post("/api/v1/auth/login")
         .then()

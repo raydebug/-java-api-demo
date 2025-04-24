@@ -14,10 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import com.demo.security.JwtAuthenticationFilter;
 import com.demo.security.JwtTokenProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,39 +21,16 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import javax.sql.DataSource;
 
 @Configuration
-@Testcontainers
 public class TestConfig {
-
-    static final PostgreSQLContainer<?> postgres;
-
-    static {
-        postgres = new PostgreSQLContainer<>("postgres:13-alpine")
-                .withDatabaseName("testdb")
-                .withUsername("test")
-                .withPassword("test");
-        postgres.start();
-    }
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.datasource.driver-class-name", postgres::getDriverClassName);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-        registry.add("spring.jpa.show-sql", () -> "true");
-        registry.add("jwt.secret", () -> "testSecretKey123456789testSecretKey123456789");
-        registry.add("jwt.expiration", () -> "3600000");
-    }
 
     @Bean
     @Primary
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(postgres.getDriverClassName());
-        dataSource.setUrl(postgres.getJdbcUrl());
-        dataSource.setUsername(postgres.getUsername());
-        dataSource.setPassword(postgres.getPassword());
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
         return dataSource;
     }
 
@@ -69,5 +42,46 @@ public class TestConfig {
     @Bean
     public JwtTokenProvider jwtTokenProvider() {
         return new JwtTokenProvider();
+    }
+
+    @Bean
+    public CustomUserDetailsService userDetailsService() {
+        return new CustomUserDetailsService();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService,
+                                                          PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                     DaoAuthenticationProvider authProvider) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .authenticationProvider(authProvider)
+                .build();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                 JwtAuthenticationFilter jwtFilter) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/files/**").authenticated()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 }

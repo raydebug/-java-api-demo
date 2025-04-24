@@ -193,4 +193,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Spring Boot team for the excellent framework
 - TestContainers team for the testing infrastructure
 - The open-source community for various libraries used
-- Contributors who have helped improve this project 
+- Contributors who have helped improve this project
+
+## Test Changes
+
+- Updated `UserDto` to include password field
+- Fixed test assertions to match API response structure
+- Added password validation in user creation test 

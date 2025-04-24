@@ -7,7 +7,7 @@ VALUES (
     'User',
     'ADMIN',
     CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING;
+);
 
 -- Insert test regular user
 INSERT INTO users (email, password, first_name, last_name, role, created_at) 
@@ -18,4 +18,4 @@ VALUES (
     'User',
     'USER',
     CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING; 
+); 

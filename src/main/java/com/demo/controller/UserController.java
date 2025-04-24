@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody UserDto userDto) {
         User user = userService.createUser(userDto);
-        return ResponseEntity.ok(ApiResponse.success(user));
+        return ResponseEntity.status(201).body(ApiResponse.success(user));
     }
 
     @GetMapping
